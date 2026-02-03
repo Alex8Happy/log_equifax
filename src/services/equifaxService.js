@@ -7,33 +7,33 @@
 
 /**
  * Función principal para obtener el token válido.
- * Verifica el localStorage antes de hacer una petición de red.
+ * Verifica la expiración real del token en localStorage.
  */
 const getEquifaxToken = async () => {
     const savedToken = localStorage.getItem('equifax_token');
-    const savedDate = localStorage.getItem('token_date');
+    const expirationTime = localStorage.getItem('token_expiration'); // Timestamp en milisegundos
 
-    // Obtenemos la fecha actual en formato YYYY-MM-DD
-    const today = new Date().toISOString().split('T')[0];
+    const now = Date.now();
+    // Buffer de seguridad de 5 minutos (300,000 ms) para evitar usar un token a punto de vencer
+    const safetyBuffer = 5 * 60 * 1000;
 
-    // Si el token existe y la fecha de guardado es hoy, lo retornamos
-    if (savedToken && savedDate === today) {
-        // console.log("Usando token existente del localStorage");
+    // Verificar si existe token y si aún es válido (Current Time < Expiration - Buffer)
+    if (savedToken && expirationTime && (now < (parseInt(expirationTime) - safetyBuffer))) {
+        // console.log("Usando token válido del caché");
         return savedToken;
     }
 
-    // Si no hay token o ya caducó (es otro día), generamos uno nuevo
-    console.log("Token no encontrado o caducado. Generando uno nuevo...");
-    return await refreshEquifaxToken(today);
+    console.log("Token expirado o inexistente. Generando uno nuevo...");
+    return await refreshEquifaxToken();
 };
 
 /**
  * Función interna que realiza la petición POST a Equifax para renovar el token
  */
-const refreshEquifaxToken = async (todayDate) => {
+const refreshEquifaxToken = async () => {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-    // Generalmente la autenticación de token es Basic Auth con ClientID:Secret
+
     const basicAuth = import.meta.env.VITE_EQUIFAX_BASIC_AUTH;
     if (!basicAuth) {
         console.error("VITE_EQUIFAX_BASIC_AUTH no está definido en el archivo .env");
@@ -59,9 +59,15 @@ const refreshEquifaxToken = async (todayDate) => {
         const result = await response.json();
 
         if (result.access_token) {
-            // Guardamos el token y la fecha de hoy
+            // Guardamos el token
             localStorage.setItem('equifax_token', result.access_token);
-            localStorage.setItem('token_date', todayDate);
+
+            // Calculamos expiración. OAuth suele devolver 'expires_in' en segundos.
+            // Si no viene, asumimos 1 hora (3600s) por defecto.
+            const expiresInSeconds = result.expires_in || 3600;
+            const expirationTimestamp = Date.now() + (expiresInSeconds * 1000);
+            localStorage.setItem('token_expiration', expirationTimestamp.toString());
+
             return result.access_token;
         } else {
             throw new Error("No se pudo obtener el access_token de la respuesta");

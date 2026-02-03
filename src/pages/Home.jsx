@@ -52,9 +52,15 @@ const Home = () => {
         .home-container {
           max-width: 1400px;
           margin: 0 auto;
-          padding: 2rem;
+          padding: 1rem;
           font-family: 'Inter', system-ui, sans-serif;
           min-height: 100vh;
+        }
+
+        @media (min-width: 768px) {
+          .home-container {
+            padding: 2rem;
+          }
         }
         
         .home-header {
