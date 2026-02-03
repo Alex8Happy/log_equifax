@@ -34,7 +34,11 @@ const refreshEquifaxToken = async (todayDate) => {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
     // Generalmente la autenticación de token es Basic Auth con ClientID:Secret
-    myHeaders.append("Authorization", "Basic eG4wVzVub3FreGgyelBmN2x2TjBRZklJdklhZ1BYejQ6NVZMRW5PSkIxV0FKclR1Vg==");
+    const basicAuth = import.meta.env.VITE_EQUIFAX_BASIC_AUTH;
+    if (!basicAuth) {
+        console.error("VITE_EQUIFAX_BASIC_AUTH no está definido en el archivo .env");
+    }
+    myHeaders.append("Authorization", basicAuth || "");
 
     const urlencoded = new URLSearchParams();
     urlencoded.append("grant_type", "client_credentials");

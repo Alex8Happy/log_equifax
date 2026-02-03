@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api_proxy/:match*",
+            "destination": "https://api.latam.equifax.com/:match*"
+        }
+    ]
+}
