@@ -50,7 +50,7 @@ const Home = () => {
 
       <style jsx>{`
         .home-container {
-          max-width: 1400px;
+          max-width: 1900px;
           margin: 0 auto;
           padding: 1rem;
           font-family: 'Inter', system-ui, sans-serif;
