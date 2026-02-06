@@ -7,6 +7,11 @@ export const DemographicCard = ({ data }) => {
   console.log("Datos recibidos en DemographicCard:", data);
 
   // --- Data Extraction Logic ---
+  // Extract Name using user's preferred variable
+  // CORRECTION: identificacion_consultada is an ARRAY, so we access index [0]
+  const idList = data?.reporteCrediticio?.identificacion_consultada;
+  const infoCredArray = Array.isArray(idList) ? idList[0]?.nombre : idList?.nombre;
+
   // Try to find 'informacion_demografica' (accented or not, array or object)
   const infoDemograficaArray = data?.informacion_demografica ||
     data?.información_demografica ||
@@ -31,7 +36,7 @@ export const DemographicCard = ({ data }) => {
   const educacion = infoDirecta.educacion || personalInfo.nivelEstudio || personalInfo.NivelEstudio || personalInfo.educationLevel;
 
   // Location / Addresses
-  // Prefer infoDirecta fields, fallback to address array
+  // Prefer infoDirecta fields, fallback to array
   const provincia = infoDirecta.provincia || (addresses[0]?.state || addresses[0]?.provincia);
   const canton = infoDirecta.canton || (addresses[0]?.city || addresses[0]?.canton);
   const direccion = infoDirecta.direcciones || (addresses[0]?.addressLine1 || addresses[0]?.callePrincipal);
@@ -57,6 +62,8 @@ export const DemographicCard = ({ data }) => {
   const formatSingle = (val) => (val && val !== "null" && val.trim() !== "") ? val : "Sin Dato";
 
   // Process data for rendering
+  // infoCredArray now holds the Name String directly
+  const formattedName = formatSingle(infoCredArray);
   const educacionVal = formatSingle(educacion);
   const provinciaList = parsePipe(provincia);
   const cantonList = parsePipe(canton);
@@ -115,13 +122,19 @@ export const DemographicCard = ({ data }) => {
   return (
     <div className="demographic-card">
       <div className="card-header">
-        <h3 className="card-title">Información Demográfica</h3>
+        <div>
+          <h3 className="card-title">Información Demográfica</h3>
+          {/* Display Name from infoCredArray */}
+          {infoCredArray && infoCredArray.length > 0 && (
+            <h2 className="user-name">{formattedName}</h2>
+          )}
+        </div>
         <span className="badge-verified">Verificado</span>
       </div>
 
       <div className="main-grid">
 
-        {/* Row 1 (MOVED TO TOP): Contacts */}
+        {/* Row 1 (Contacts) */}
         <div className="full-width-container contacts-section-top">
           <span className="label section-header">Contactos (Click para copiar)</span>
           <div className="contacts-grid">
@@ -193,6 +206,13 @@ export const DemographicCard = ({ data }) => {
           font-size: 1.4rem;
           color: #1a1a1a;
           font-weight: 700;
+        }
+        .user-name {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.6rem;
+            color: #47688fff;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
         .badge-verified {
           background: #e6f7ff;

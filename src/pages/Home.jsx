@@ -1,9 +1,8 @@
-import React from 'react';
 import { useEquifax } from '../hooks/useEquifax';
 import { SearchForm } from '../components/SearchForm';
 import { DemographicCard } from '../components/DemographicCard';
 
-const Home = () => {
+const Home = ({ onLogout }) => {
   const { userInfo, loading, error, searchByCedula, clearResults } = useEquifax();
 
   const handleSearch = (cedula) => {
@@ -14,8 +13,15 @@ const Home = () => {
   return (
     <div className="home-container">
       <header className="home-header">
-        <h1>Consulta Demográfica Happypay</h1>
-        <p>Ingrese el número de cédula para consultar información.</p>
+        <div className="header-content">
+          <div>
+            <h1>Consulta Demográfica Happypay</h1>
+            <p>Ingrese el número de cédula para consultar información.</p>
+          </div>
+          <button onClick={onLogout} className="logout-button">
+            Cerrar Sesión
+          </button>
+        </div>
       </header>
 
       <div className="dashboard-grid">
@@ -68,6 +74,13 @@ const Home = () => {
           padding-bottom: 1rem;
           border-bottom: 1px solid #eaeaea;
         }
+        .header-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
         .home-header h1 {
           font-size: 1.8rem;
           margin: 0 0 0.5rem 0;
@@ -78,6 +91,21 @@ const Home = () => {
           color: #666;
           margin: 0;
           font-size: 1rem;
+        }
+        .logout-button {
+          background-color: transparent;
+          color: #666;
+          border: 1px solid #ddd;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: all 0.2s;
+        }
+        .logout-button:hover {
+          background-color: #f5f5f5;
+          color: #333;
+          border-color: #ccc;
         }
 
         /* Dashboard Grid Layout */
@@ -90,12 +118,17 @@ const Home = () => {
         /* Desktop Layout */
         @media (min-width: 900px) {
           .dashboard-grid {
-            grid-template-columns: 350px 1fr;
-            align-items: start;
+             /* Previous grid columns removed to keep vertical stacking */
+             /* grid-template-columns: 350px 1fr; */
+             display: flex;
+             flex-direction: column;
+             max-width: 900px;
+             margin: 0 auto;
           }
           .sidebar {
-            position: sticky;
-            top: 2rem;
+            /* Changed to static or keep sticky but top works differently if stacked, usually static is better for stacked form */
+            position: static;
+            width: 100%;
           }
         }
 

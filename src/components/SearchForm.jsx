@@ -72,7 +72,7 @@ export const SearchForm = ({ onSearch, loading }) => {
         }
         .input-group {
           display: flex;
-          gap: 10px;
+          gap: 5px;
         }
         .form-input {
           flex: 1;

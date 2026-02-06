@@ -88,12 +88,11 @@ const refreshEquifaxToken = async () => {
 export const getDemographicInfo = async (cedula) => {
     if (!cedula) throw new Error("Cédula es requerida");
 
-    try {
-        const token = await getEquifaxToken();
-
+    // Helper to perform the fetch
+    const fetchInfo = async (tokenToUse) => {
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("Authorization", `Bearer ${token}`);
+        myHeaders.append("Authorization", `Bearer ${tokenToUse}`);
 
         const raw = JSON.stringify({
             "applicants": {
@@ -121,6 +120,24 @@ export const getDemographicInfo = async (cedula) => {
         };
 
         const response = await fetch("/api_proxy/business/interconnect/v1/decision-orchestrations/execute?", requestOptions);
+        return response;
+    };
+
+    try {
+        let token = await getEquifaxToken();
+        let response = await fetchInfo(token);
+
+        // Si falla por Auth (401), intentamos refrescar el token forzosamente y reintentar
+        if (response.status === 401) {
+            console.warn("Recibido 401 Unauthorized. Intentando refrescar token...");
+
+            // Borramos expiración para forzar renovación (aunque llamemos directo a refresh)
+            localStorage.removeItem('token_expiration');
+            token = await refreshEquifaxToken();
+
+            // Reintento con token nuevo
+            response = await fetchInfo(token);
+        }
 
         if (!response.ok) {
             const errorText = await response.text();

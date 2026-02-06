@@ -11,6 +11,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api_proxy/, ''),
       },
+      '/auth-api': {
+        target: 'https://sigmaplussecurityqa-frfnchc3f4htc0ey.eastus-01.azurewebsites.net',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/auth-api/, ''),
+      },
     },
   },
 })
