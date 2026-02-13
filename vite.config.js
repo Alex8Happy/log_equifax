@@ -16,6 +16,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth-api/, ''),
       },
+      '/api/histo-eqx': {
+        target: 'https://reporteriahappypay.azurewebsites.net',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/histo-eqx/, ''),
+      },
     },
   },
 })
